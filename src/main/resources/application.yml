@@ -54,5 +54,14 @@ security:
       secret: FBE673D3BC311C9D8919DBB5CFABAFBE673D3BC311C9D8919DBB5CFABA
       expiration: 604800000
 
+otp:
+  duration:
+    120
+  max-attempts:
+    3
+  max-request:
+    3
+
+
 
 

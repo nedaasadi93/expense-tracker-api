@@ -6,6 +6,9 @@ import com.example.expensetracker.category.dto.CategoryResponse;
 import com.example.expensetracker.category.mapper.CategoryMapper;
 import com.example.expensetracker.category.repository.CategoryRepository;
 import com.example.expensetracker.category.specification.CategorySpecification;
+import com.example.expensetracker.common.exception.ErrorCodes;
+import com.example.expensetracker.common.exception.ExceptionModel;
+import com.example.expensetracker.common.exception.NotFoundException;
 import com.example.expensetracker.security.jwt.JwtUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,4 +37,23 @@ public class CategoryServiceImp implements CategoryService {
     private Long getCurrentUserId() {
         return JwtUser.getAuthenticatedUser().getId();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CategoryResponse getById(Long id) {
+        Long userId = getCurrentUserId();
+        CategoryEntity category = findByIdAndUserIdOrThrowException(id, userId);
+        return categoryMapper.toResponse(category);
+    }
+
+    public CategoryEntity findByIdAndUserIdOrThrowException(Long id, Long userId) {
+        return categoryRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionModel
+                                .builder()
+                                .errorCode(ErrorCodes.CATEGORY_NOT_FOUND.getCode())
+                                .messageKey(ErrorCodes.CATEGORY_NOT_FOUND.getMessage())
+                                .build()));
+    }
+
 }

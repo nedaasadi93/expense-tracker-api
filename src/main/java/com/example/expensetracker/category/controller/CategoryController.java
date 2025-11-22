@@ -4,11 +4,13 @@ import com.example.expensetracker.category.dto.CategoryFilter;
 import com.example.expensetracker.category.dto.CategoryResponse;
 import com.example.expensetracker.category.service.CategoryService;
 import com.example.expensetracker.category.statics.CategoryRestApi;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,5 +24,11 @@ public class CategoryController {
     @GetMapping(path = CategoryRestApi.CATEGORIES)
     public ResponseEntity<Page<CategoryResponse>> getAll(@Valid CategoryFilter filter) {
         return ResponseEntity.ok(categoryService.getAll(filter));
+    }
+
+    @Operation(summary = "Load by id", description = "Returns a category by its ID if it is owned by the authenticated user")
+    @GetMapping(path = CategoryRestApi.CATEGORIES_ID)
+    public ResponseEntity<CategoryResponse> getById(@PathVariable(value = "id") Long id) {
+        return ResponseEntity.ok(categoryService.getById(id));
     }
 }

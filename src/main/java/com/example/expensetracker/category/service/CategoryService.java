@@ -6,4 +6,6 @@ import org.springframework.data.domain.Page;
 
 public interface CategoryService {
     Page<CategoryResponse> getAll(CategoryFilter filter);
+
+    CategoryResponse getById(Long id);
 }

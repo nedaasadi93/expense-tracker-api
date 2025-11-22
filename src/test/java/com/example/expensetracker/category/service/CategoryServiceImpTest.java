@@ -6,6 +6,7 @@ import com.example.expensetracker.category.dto.CategoryFilter;
 import com.example.expensetracker.category.dto.CategoryResponse;
 import com.example.expensetracker.category.mapper.CategoryMapper;
 import com.example.expensetracker.category.repository.CategoryRepository;
+import com.example.expensetracker.common.exception.NotFoundException;
 import com.example.expensetracker.security.jwt.JwtUser;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,8 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -93,6 +93,38 @@ public class CategoryServiceImpTest {
             verify(mapper, never()).toResponse(any(CategoryEntity.class));
         }
     }
+
+
+    @Nested
+    @DisplayName("getById")
+    class TestsForGetById {
+        @Test
+        void shouldReturnsCategoryResponse() {
+            CategoryEntity categoryEntity = createCategoryEntity();
+            CategoryResponse categoryResponse = new CategoryResponse();
+
+            when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID))
+                    .thenReturn(java.util.Optional.of(categoryEntity));
+            when(mapper.toResponse(categoryEntity)).thenReturn(categoryResponse);
+
+            CategoryResponse result = service.getById(CATEGORY_ID);
+
+            assertEquals(categoryResponse, result);
+            verify(repository, times(1)).findByIdAndUserId(CATEGORY_ID, USER_ID);
+            verify(mapper, times(1)).toResponse(categoryEntity);
+        }
+
+        @Test
+        void shouldThrowNotFoundException() {
+            when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID))
+                    .thenReturn(java.util.Optional.empty());
+
+            assertThrows(NotFoundException.class, () -> service.getById(CATEGORY_ID));
+            verify(repository, times(1)).findByIdAndUserId(CATEGORY_ID, USER_ID);
+            verifyNoInteractions(mapper);
+        }
+    }
+
 
     private CategoryEntity createCategoryEntity() {
         return CategoryEntity.builder()

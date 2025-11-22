@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("${idn}")
+@RequestMapping("${rest.idn}")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;

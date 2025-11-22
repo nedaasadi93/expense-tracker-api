@@ -62,6 +62,8 @@ otp:
   max-request:
     3
 
+rest:
+  idn: /idn
 
 
 

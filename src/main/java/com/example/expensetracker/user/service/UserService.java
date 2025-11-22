@@ -16,4 +16,6 @@ public interface UserService {
     UserResponse toResponse(UserEntity user);
 
     Optional<UserEntity> findById(Long userId);
+
+    UserResponse getById(Long id);
 }

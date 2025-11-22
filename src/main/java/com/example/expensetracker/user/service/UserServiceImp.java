@@ -1,5 +1,8 @@
 package com.example.expensetracker.user.service;
 
+import com.example.expensetracker.common.exception.ErrorCodes;
+import com.example.expensetracker.common.exception.ExceptionModel;
+import com.example.expensetracker.common.exception.NotFoundException;
 import com.example.expensetracker.user.domain.UserEntity;
 import com.example.expensetracker.user.dto.UserResponse;
 import com.example.expensetracker.user.mapper.UserMapper;
@@ -42,6 +45,19 @@ public class UserServiceImp implements UserService {
     @Transactional(readOnly = true)
     public Optional<UserEntity> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponse getById(Long id) {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionModel
+                                .builder()
+                                .errorCode(ErrorCodes.USER_NOT_FOUND.getCode())
+                                .messageKey(ErrorCodes.USER_NOT_FOUND.getMessage())
+                                .build()));
+        return userMapper.toResponse(user);
     }
 
 }

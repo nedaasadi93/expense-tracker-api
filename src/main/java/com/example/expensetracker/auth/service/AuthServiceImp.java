@@ -1,9 +1,11 @@
 package com.example.expensetracker.auth.service;
 
 import com.example.expensetracker.auth.dto.*;
+import com.example.expensetracker.auth.dto.otp.OtpRequest;
 import com.example.expensetracker.common.exception.*;
 import com.example.expensetracker.security.jwt.JwtService;
 import com.example.expensetracker.security.jwt.JwtTokenType;
+import com.example.expensetracker.security.otp.OtpService;
 import com.example.expensetracker.user.domain.UserEntity;
 import com.example.expensetracker.user.service.UserService;
 import jakarta.transaction.Transactional;
@@ -18,6 +20,7 @@ public class AuthServiceImp implements AuthService{
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final OtpService otpService;
 
     @Override
     @Transactional
@@ -89,5 +92,16 @@ public class AuthServiceImp implements AuthService{
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    public void requestOtp(OtpRequest request) {
+        UserEntity user = userService.findByMobile(request.getMobile())
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionModel
+                                .builder()
+                                .errorCode(ErrorCodes.USER_NOT_FOUND.getCode())
+                                .messageKey(ErrorCodes.USER_NOT_FOUND.getMessage())
+                                .build()));
+        otpService.generateOtp(user.getMobile());
     }
 }

@@ -1,6 +1,7 @@
 package com.example.expensetracker.auth.controller;
 
 import com.example.expensetracker.auth.dto.*;
+import com.example.expensetracker.auth.dto.otp.OtpRequest;
 import com.example.expensetracker.auth.service.AuthService;
 import com.example.expensetracker.auth.statics.AuthRestApi;
 import jakarta.validation.Valid;
@@ -34,5 +35,11 @@ public class AuthController {
     @PostMapping(path = AuthRestApi.REFRESH)
     public ResponseEntity<TokenResponse> refresh(@RequestBody RefreshRequest request) {
         return ResponseEntity.ok(authService.refresh(request));
+    }
+
+    @PostMapping(path = AuthRestApi.REQUEST_OTP)
+    public ResponseEntity<Void> requestOtp(@Valid @RequestBody OtpRequest request) {
+        authService.requestOtp(request);
+        return ResponseEntity.ok().build();
     }
 }

@@ -45,6 +45,14 @@ logging:
           jdbc:
             bind: trace
 
+security:
+  jwt:
+    access:
+      secret: 23FBAF13FB5469299A1878CCAB3DA23FBAF13FB5469299A1878CCAB3DA
+      expiration: 3600000
+    refresh:
+      secret: FBE673D3BC311C9D8919DBB5CFABAFBE673D3BC311C9D8919DBB5CFABA
+      expiration: 604800000
 
 
 

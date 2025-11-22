@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -31,4 +33,19 @@ public class UserEntity extends BaseEntity {
 
     @Column(name = "verified", columnDefinition = "boolean default false")
     private boolean verified;
+
+    public static UserEntity createNewUser(String mobile, String encodedPassword, String name) {
+        return UserEntity.builder()
+                .mobile(mobile)
+                .password(encodedPassword)
+                .name(name)
+                .verified(false) //user will be verified after OTP
+                .build();
+    }
+
+
+    public void verified() {
+        this.verified = true;
+        this.updated = LocalDateTime.now();
+    }
 }

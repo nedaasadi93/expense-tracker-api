@@ -1,9 +1,6 @@
 package com.example.expensetracker.auth.service;
 
-import com.example.expensetracker.auth.dto.AuthResponse;
-import com.example.expensetracker.auth.dto.LoginWithPasswordRequest;
-import com.example.expensetracker.auth.dto.RegisterRequest;
-import com.example.expensetracker.auth.dto.TokenResponse;
+import com.example.expensetracker.auth.dto.*;
 import com.example.expensetracker.common.exception.*;
 import com.example.expensetracker.security.jwt.JwtService;
 import com.example.expensetracker.security.jwt.JwtTokenType;
@@ -69,6 +66,19 @@ public class AuthServiceImp implements AuthService{
                 .user(userService.toResponse(user))
                 .tokens(tokens)
                 .build();
+    }
+
+    public TokenResponse refresh(RefreshRequest request) {
+        Long userId = Long.valueOf(jwtService.extractUserId(request.getRefreshToken(), JwtTokenType.REFRESH_TOKEN));
+        UserEntity user = userService.findById(userId)
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionModel
+                                .builder()
+                                .errorCode(ErrorCodes.USER_NOT_FOUND.getCode())
+                                .messageKey(ErrorCodes.USER_NOT_FOUND.getMessage())
+                                .build()));
+        jwtService.validateToken(request.getRefreshToken(), JwtTokenType.REFRESH_TOKEN);
+        return generateTokens(user.getId());
     }
 
     private TokenResponse generateTokens(Long userId) {

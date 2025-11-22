@@ -14,4 +14,6 @@ public interface UserService {
     Optional<UserEntity> findByMobile(String mobile);
 
     UserResponse toResponse(UserEntity user);
+
+    Optional<UserEntity> findById(Long userId);
 }

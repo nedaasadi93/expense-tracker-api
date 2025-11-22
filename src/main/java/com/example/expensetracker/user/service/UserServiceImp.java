@@ -38,4 +38,10 @@ public class UserServiceImp implements UserService {
         return userMapper.toResponse(user);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<UserEntity> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
 }

@@ -1,6 +1,9 @@
 package com.example.expensetracker.security.jwt;
 
 import com.example.expensetracker.auth.dto.UserContextDto;
+import com.example.expensetracker.common.exception.ErrorCodes;
+import com.example.expensetracker.common.exception.ExceptionModel;
+import com.example.expensetracker.common.exception.UnauthorizedException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,7 +39,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String token = resolveToken(request);
 
                 if (token == null) {
-                    // throw UnauthorizedException
+                    throw new UnauthorizedException(
+                            ExceptionModel
+                                    .builder()
+                                    .errorCode(ErrorCodes.INVALID_TOKEN.getCode())
+                                    .messageKey(ErrorCodes.INVALID_TOKEN.getMessage())
+                                    .build());
                 }
 
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -53,7 +61,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         SecurityContextHolder.getContext().setAuthentication(auth);
 
                     } catch (Exception e) {
-                        // throw UnauthorizedException
+                        throw new UnauthorizedException(
+                                ExceptionModel
+                                        .builder()
+                                        .errorCode(ErrorCodes.INVALID_TOKEN_OR_EXPIRED.getCode())
+                                        .messageKey(ErrorCodes.INVALID_TOKEN_OR_EXPIRED.getMessage())
+                                        .build());
                     }
                 }
             }

@@ -1,5 +1,8 @@
 package com.example.expensetracker.security.jwt;
 
+import com.example.expensetracker.common.exception.ErrorCodes;
+import com.example.expensetracker.common.exception.ExceptionModel;
+import com.example.expensetracker.common.exception.UnauthorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -48,7 +51,11 @@ public class JwtService {
     public void validateToken(String token, JwtTokenType type) {
         Boolean expired = isTokenExpired(token, type);
         if (expired) {
-            throw new RuntimeException("token expired");
+            throw new UnauthorizedException(
+                    ExceptionModel.builder()
+                            .errorCode(ErrorCodes.TOKEN_EXPIRED.getCode())
+                            .messageKey(ErrorCodes.TOKEN_EXPIRED.getMessage())
+                            .build());
         }
     }
 
@@ -64,7 +71,11 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            throw new RuntimeException("invalid token");
+            throw new UnauthorizedException(
+                    ExceptionModel.builder()
+                            .errorCode(ErrorCodes.INVALID_TOKEN.getCode())
+                            .messageKey(ErrorCodes.INVALID_TOKEN.getMessage())
+                            .build());
         }
     }
 

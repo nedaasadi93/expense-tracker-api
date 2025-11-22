@@ -7,6 +7,7 @@ public enum ErrorCodes {
     // User
     USER_NOT_FOUND(1, "USER_NOT_FOUND"),
     USER_IS_NOT_VERIFIED(2, "USER_IS_NOT_VERIFIED"),
+    USER_IS_NOT_AUTHENTICATED(3, "USER_IS_NOT_AUTHENTICATED"),
 
 
     // Security-Auth

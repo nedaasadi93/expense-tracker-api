@@ -1,6 +1,7 @@
 package com.example.expensetracker.auth.service;
 
 import com.example.expensetracker.auth.dto.*;
+import com.example.expensetracker.auth.dto.otp.OtpRequest;
 
 public interface AuthService {
 
@@ -9,4 +10,6 @@ public interface AuthService {
     AuthResponse loginWithPassword(LoginWithPasswordRequest request);
 
     TokenResponse refresh(RefreshRequest request);
+
+    void requestOtp(OtpRequest request);
 }

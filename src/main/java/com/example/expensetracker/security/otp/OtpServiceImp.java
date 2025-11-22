@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -70,4 +71,35 @@ public class OtpServiceImp implements OtpService  {
         return String.valueOf(ThreadLocalRandom.current().nextInt(100000, 999999));
     }
 
+
+    public boolean validateOtp(String mobile, String inputCode) {
+
+        String otpKey = OTP_CODE + mobile;
+        String attemptsKey = OTP_ATTEMPTS + mobile;
+
+        String correctCode = redis.opsForValue().get(otpKey);
+        if (correctCode == null) return false;
+
+        int attempts = Integer.parseInt(Objects.requireNonNull(redis.opsForValue().get(attemptsKey)));
+
+        if (attempts >= maxAttempts) {
+            redis.delete(otpKey);
+            redis.delete(attemptsKey);
+            throw new TooManyRequestException(
+                    ExceptionModel
+                            .builder()
+                            .errorCode(ErrorCodes.TOO_MANY_OTP_REQUEST.getCode())
+                            .messageKey(ErrorCodes.TOO_MANY_OTP_REQUEST.getMessage())
+                            .build());
+        }
+
+        if (correctCode.equals(inputCode)) {
+            redis.delete(otpKey);
+            redis.delete(attemptsKey);
+            return true;
+        }
+
+        redis.opsForValue().increment(attemptsKey);
+        return false;
+    }
 }

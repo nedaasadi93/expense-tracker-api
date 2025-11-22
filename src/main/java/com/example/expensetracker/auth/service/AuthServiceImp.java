@@ -2,16 +2,17 @@ package com.example.expensetracker.auth.service;
 
 import com.example.expensetracker.auth.dto.*;
 import com.example.expensetracker.auth.dto.otp.OtpRequest;
+import com.example.expensetracker.auth.dto.otp.VerifyOtpRequest;
 import com.example.expensetracker.common.exception.*;
 import com.example.expensetracker.security.jwt.JwtService;
 import com.example.expensetracker.security.jwt.JwtTokenType;
 import com.example.expensetracker.security.otp.OtpService;
 import com.example.expensetracker.user.domain.UserEntity;
 import com.example.expensetracker.user.service.UserService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class AuthServiceImp implements AuthService{
     private final OtpService otpService;
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void register(RegisterRequest request) {
         if (userService.existsByMobile(request.getMobile())) {
             throw new ConflictException(
@@ -38,9 +39,11 @@ public class AuthServiceImp implements AuthService{
                 passwordEncoder.encode(request.getPassword()),
                 request.getName());
         userService.save(user);
-
+        otpService.generateOtp(request.getMobile());
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public AuthResponse loginWithPassword(LoginWithPasswordRequest request) {
         UserEntity user = userService.findByMobile(request.getMobile())
                 .orElseThrow(() -> new NotFoundException(
@@ -71,6 +74,8 @@ public class AuthServiceImp implements AuthService{
                 .build();
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public TokenResponse refresh(RefreshRequest request) {
         Long userId = Long.valueOf(jwtService.extractUserId(request.getRefreshToken(), JwtTokenType.REFRESH_TOKEN));
         UserEntity user = userService.findById(userId)
@@ -94,6 +99,8 @@ public class AuthServiceImp implements AuthService{
                 .build();
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public void requestOtp(OtpRequest request) {
         UserEntity user = userService.findByMobile(request.getMobile())
                 .orElseThrow(() -> new NotFoundException(
@@ -103,5 +110,35 @@ public class AuthServiceImp implements AuthService{
                                 .messageKey(ErrorCodes.USER_NOT_FOUND.getMessage())
                                 .build()));
         otpService.generateOtp(user.getMobile());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public AuthResponse verifyOtp(VerifyOtpRequest request) {
+        UserEntity user = userService.findByMobile(request.getMobile())
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionModel
+                                .builder()
+                                .errorCode(ErrorCodes.USER_NOT_FOUND.getCode())
+                                .messageKey(ErrorCodes.USER_NOT_FOUND.getMessage())
+                                .build()));
+
+        if (!otpService.validateOtp(request.getMobile(), request.getOtp()))
+            throw new InvalidOtpException(
+                    ExceptionModel
+                            .builder()
+                            .messageKey(ErrorCodes.INVALID_OTP.getMessage())
+                            .errorCode(ErrorCodes.INVALID_OTP.getCode())
+                            .build());
+
+        if (!user.isVerified()) {
+            user.verified();
+            userService.save(user);
+        }
+        TokenResponse tokens = generateTokens(user.getId());
+        return AuthResponse.builder()
+                .user(userService.toResponse(user))
+                .tokens(tokens)
+                .build();
     }
 }

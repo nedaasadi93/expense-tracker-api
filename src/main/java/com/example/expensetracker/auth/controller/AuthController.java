@@ -2,6 +2,7 @@ package com.example.expensetracker.auth.controller;
 
 import com.example.expensetracker.auth.dto.*;
 import com.example.expensetracker.auth.dto.otp.OtpRequest;
+import com.example.expensetracker.auth.dto.otp.VerifyOtpRequest;
 import com.example.expensetracker.auth.service.AuthService;
 import com.example.expensetracker.auth.statics.AuthRestApi;
 import jakarta.validation.Valid;
@@ -41,5 +42,10 @@ public class AuthController {
     public ResponseEntity<Void> requestOtp(@Valid @RequestBody OtpRequest request) {
         authService.requestOtp(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(path = AuthRestApi.VERIFY_OTP)
+    public ResponseEntity<AuthResponse> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
+        return ResponseEntity.ok(authService.verifyOtp(request));
     }
 }

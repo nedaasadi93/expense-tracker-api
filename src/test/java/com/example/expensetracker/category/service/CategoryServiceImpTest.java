@@ -216,6 +216,34 @@ public class CategoryServiceImpTest {
     }
 
 
+    @Nested
+    @DisplayName("findByIdAndUserIdOrThrowException")
+    class TestsForFindByIdAndUserIdOrThrowException {
+        @Test
+        void testFindByIdAndUserIdOrThrowException_ReturnsEntity() {
+            CategoryEntity entity = createCategoryEntity();
+
+            when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID)).thenReturn(java.util.Optional.of(entity));
+
+            CategoryEntity result = service.findByIdAndUserIdOrThrowException(CATEGORY_ID, USER_ID);
+
+            assertNotNull(result);
+            assertEquals(entity, result);
+            verify(repository, times(1)).findByIdAndUserId(CATEGORY_ID, USER_ID);
+        }
+
+        @Test
+        void testFindByIdAndUserIdOrThrowException_ThrowsNotFoundException() {
+            when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID))
+                    .thenReturn(java.util.Optional.empty());
+
+            assertThrows( NotFoundException.class, () -> service.findByIdAndUserIdOrThrowException(CATEGORY_ID, USER_ID));
+
+            verify(repository, times(1)).findByIdAndUserId(CATEGORY_ID, USER_ID);
+        }
+    }
+
+
         private CategoryEntity createCategoryEntity() {
             return CategoryEntity.builder()
                     .id(CATEGORY_ID)

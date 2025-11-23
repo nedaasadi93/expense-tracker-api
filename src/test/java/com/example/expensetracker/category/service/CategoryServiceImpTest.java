@@ -24,6 +24,7 @@ import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -109,7 +110,7 @@ public class CategoryServiceImpTest {
             CategoryResponse categoryResponse = new CategoryResponse();
 
             when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID))
-                    .thenReturn(java.util.Optional.of(categoryEntity));
+                    .thenReturn(Optional.of(categoryEntity));
             when(mapper.toResponse(categoryEntity)).thenReturn(categoryResponse);
 
             CategoryResponse result = service.getById(CATEGORY_ID);
@@ -122,7 +123,7 @@ public class CategoryServiceImpTest {
         @Test
         void shouldThrowNotFoundException() {
             when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID))
-                    .thenReturn(java.util.Optional.empty());
+                    .thenReturn(Optional.empty());
 
             assertThrows(NotFoundException.class, () -> service.getById(CATEGORY_ID));
             verify(repository, times(1)).findByIdAndUserId(CATEGORY_ID, USER_ID);
@@ -177,7 +178,7 @@ public class CategoryServiceImpTest {
             CategoryResponse updatedResponse = new CategoryResponse();
 
             when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID))
-                    .thenReturn(java.util.Optional.of(existingEntity));
+                    .thenReturn(Optional.of(existingEntity));
 
             doAnswer(invocation -> {
                 CategoryUpdateRequest req = invocation.getArgument(0);
@@ -205,7 +206,7 @@ public class CategoryServiceImpTest {
             CategoryUpdateRequest request = createCategoryUpdateRequest();
 
             when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID))
-                    .thenReturn(java.util.Optional.empty());
+                    .thenReturn(Optional.empty());
 
             assertThrows(NotFoundException.class, () -> service.update(CATEGORY_ID, request));
 
@@ -223,7 +224,7 @@ public class CategoryServiceImpTest {
         void testFindByIdAndUserIdOrThrowException_ReturnsEntity() {
             CategoryEntity entity = createCategoryEntity();
 
-            when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID)).thenReturn(java.util.Optional.of(entity));
+            when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID)).thenReturn(Optional.of(entity));
 
             CategoryEntity result = service.findByIdAndUserIdOrThrowException(CATEGORY_ID, USER_ID);
 
@@ -235,7 +236,7 @@ public class CategoryServiceImpTest {
         @Test
         void testFindByIdAndUserIdOrThrowException_ThrowsNotFoundException() {
             when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID))
-                    .thenReturn(java.util.Optional.empty());
+                    .thenReturn(Optional.empty());
 
             assertThrows( NotFoundException.class, () -> service.findByIdAndUserIdOrThrowException(CATEGORY_ID, USER_ID));
 

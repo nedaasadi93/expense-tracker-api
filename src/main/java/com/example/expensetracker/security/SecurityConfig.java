@@ -28,6 +28,18 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(
+                                        "/swagger**",
+                                        "/swagger-ui/**",
+                                        "/swagger-resources/**",
+                                        "/webjars/**",
+                                        "/doc/**",
+                                        "/v2/**",
+                                        "/bus-refresh",
+                                        "/api-docs/**",
+                                        "/v3/**",
+                                        "/api-docs/",
+                                        "/error",
+                                        "/error/**",
                                         "/auth",
                                         "/auth/**"
                                 ).permitAll()

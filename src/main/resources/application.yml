@@ -65,5 +65,10 @@ otp:
 rest:
   idn: /idn
 
-
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    doc-expansion: none
 

@@ -11,6 +11,7 @@ import com.example.expensetracker.expense.domain.ExpenseEntity;
 import com.example.expensetracker.expense.dto.ExpenseFilter;
 import com.example.expensetracker.expense.dto.ExpenseRequest;
 import com.example.expensetracker.expense.dto.ExpenseResponse;
+import com.example.expensetracker.expense.dto.ExpenseUpdateRequest;
 import com.example.expensetracker.expense.mapper.ExpenseMapper;
 import com.example.expensetracker.expense.repository.ExpenseRepository;
 import com.example.expensetracker.security.jwt.JwtUser;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +57,7 @@ public class ExpenseServiceImpTest {
 
     private static final Long USER_ID = 1L;
     private static final Long CATEGORY_ID = 2L;
+    private static final Long ANOTHER_CATEGORY_ID = 3L;
     private static final Long EXPENSE_ID = 1L;
     private static final BigDecimal AMOUNT = BigDecimal.valueOf(50.0);
     private static final String NAME = "TestName";
@@ -62,6 +65,8 @@ public class ExpenseServiceImpTest {
     private static final int MONTH = 10;
     private static final LocalDateTime EXPENSE_DATE = LocalDateTime.of(YEAR, MONTH, 5, 10, 0);
     private static final BigDecimal MONTHLY_LIMIT = BigDecimal.valueOf(1000);
+    private static final String UPDATED_NAME = "UpdatedName";
+     private static final BigDecimal UPDATED_AMOUNT = BigDecimal.valueOf(100.0);
 
 
     @BeforeEach
@@ -109,9 +114,8 @@ public class ExpenseServiceImpTest {
 
         @Test
         void shouldThrowBadRequestExceptionWhenExpenseIsNotBelongToCategory() {
-            ExpenseEntity expense = new ExpenseEntity();
-            expense.setId(EXPENSE_ID);
-            expense.setCategoryId(999L);
+            ExpenseEntity expense = createExpense();
+            expense.setCategoryId(ANOTHER_CATEGORY_ID);
 
             when(repository.findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID)).thenReturn(Optional.of(expense));
 
@@ -155,31 +159,30 @@ public class ExpenseServiceImpTest {
         }
     }
 
+
     @Nested
     @DisplayName("create")
     class TestsForCreate {
+
         @Test
         void shouldCreatesExpense() {
             ExpenseRequest request = createExpenseRequest();
             CategoryEntity category = createCategory();
-            ExpenseEntity expense = createExpense();
-
             ExpenseResponse response = new ExpenseResponse();
 
             when(categoryService.findByIdAndUserIdOrThrowException(CATEGORY_ID, USER_ID)).thenReturn(category);
-            when(repository.save(any(ExpenseEntity.class))).thenReturn(expense);
-            when(mapper.toResponse(expense)).thenReturn(response);
+            when(mapper.toResponse(any(ExpenseEntity.class))).thenReturn(response);
             doAnswer(invocation -> {
+                ExpenseEntity expense = invocation.getArgument(0);
                 expense.setId(CATEGORY_ID);
-                return null;
+                return expense;
             }).when(repository).save(any(ExpenseEntity.class));
 
             ExpenseResponse result = service.create(request, CATEGORY_ID);
 
-            assertNotNull(result);
             assertEquals(response, result);
             verify(repository, times(1)).save(any(ExpenseEntity.class));
-            verify(mapper, times(1)).toResponse(expense);
+            verify(mapper, times(1)).toResponse(any(ExpenseEntity.class));
         }
 
         @Test
@@ -227,9 +230,8 @@ public class ExpenseServiceImpTest {
 
         @Test
         void shouldThrowBadRequestExceptionWhenExpenseIsNotBelongToCategory() {
-            ExpenseEntity expense = new ExpenseEntity();
-            expense.setId(EXPENSE_ID);
-            expense.setCategoryId(999L);
+            ExpenseEntity expense = createExpense();
+            expense.setCategoryId(ANOTHER_CATEGORY_ID);
 
             when(repository.findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID)).thenReturn(Optional.of(expense));
 
@@ -240,7 +242,114 @@ public class ExpenseServiceImpTest {
     }
 
 
+    @Nested
+    @DisplayName("getMonthlyExpenses")
+    class TestsForGetMonthlyExpenses {
+        private static final LocalDateTime START = LocalDate.of(YEAR, MONTH, 1).atTime(0, 0);
+        private static final LocalDateTime END = START.plusMonths(1).minusDays(1);
 
+        @Test
+        void getMonthlyExpenses_shouldReturnMappedExpenseResponsesForValidCriteria() {
+            ExpenseEntity expense = createExpense();
+            ExpenseResponse expectedResponse = new ExpenseResponse();
+
+            when(repository.findByUserIdAndCategoryIdAndExpenseDateBetween(USER_ID, CATEGORY_ID, START, END)).thenReturn(List.of(expense));
+            when(mapper.toResponseList(List.of(expense))).thenReturn(List.of(expectedResponse));
+
+            List<ExpenseResponse> result = service.getMonthlyExpenses(CATEGORY_ID, YEAR, MONTH);
+
+            assertEquals(1, result.size());
+            assertEquals(expectedResponse, result.get(0));
+            verify(repository, times(1)).findByUserIdAndCategoryIdAndExpenseDateBetween(USER_ID, CATEGORY_ID, START, END);
+            verify(mapper, times(1)).toResponseList(List.of(expense));
+        }
+
+        @Test
+        void getMonthlyExpenses_shouldReturnEmptyListWhenNoExpensesExist() {
+            when(repository.findByUserIdAndCategoryIdAndExpenseDateBetween(USER_ID, CATEGORY_ID, START, END)).thenReturn(List.of());
+            when(mapper.toResponseList(List.of())).thenReturn(List.of());
+
+            List<ExpenseResponse> result = service.getMonthlyExpenses(CATEGORY_ID, YEAR, MONTH);
+
+            assertNotNull(result);
+            assertTrue(result.isEmpty());
+            verify(repository, times(1)).findByUserIdAndCategoryIdAndExpenseDateBetween(USER_ID, CATEGORY_ID, START, END);
+            verify(mapper, times(1)).toResponseList(List.of());
+        }
+    }
+
+
+    @Nested
+    @DisplayName("update")
+    class TestsForUpdate {
+
+        @Test
+        void shouldUpdateExpenseSuccessfully() {
+            ExpenseEntity expenseEntity = createExpense();
+            ExpenseUpdateRequest updateRequest = createExpenseUpdateRequest();
+
+            when(repository.findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID)).thenReturn(Optional.of(expenseEntity));
+            doNothing().when(mapper).updateEntity(updateRequest, expenseEntity);
+            when(repository.save(expenseEntity)).thenReturn(expenseEntity);
+            when(mapper.toResponse(expenseEntity)).thenReturn(new ExpenseResponse());
+
+            ExpenseResponse result = service.update(EXPENSE_ID, updateRequest, CATEGORY_ID);
+
+            assertNotNull(result);
+            verify(repository, times(1)).findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID);
+            verify(mapper, times(1)).updateEntity(updateRequest, expenseEntity);
+            verify(repository, times(1)).save(expenseEntity);
+        }
+
+        @Test
+        void shouldThrowNotFoundExceptionWhenExpenseNotFound() {
+            ExpenseUpdateRequest updateRequest = new ExpenseUpdateRequest();
+
+            when(repository.findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID)).thenReturn(Optional.empty());
+
+            assertThrows(NotFoundException.class, () -> service.update(EXPENSE_ID, updateRequest, CATEGORY_ID));
+            verify(repository, times(1)).findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID);
+            verify(mapper, never()).updateEntity(any(ExpenseUpdateRequest.class), any(ExpenseEntity.class));
+            verify(repository, never()).save(any(ExpenseEntity.class));
+        }
+
+        @Test
+        void shouldThrowBadRequestExceptionWhenExpenseIsNotBelongToCategory() {
+            ExpenseEntity expenseEntity = createExpense();
+            expenseEntity.setCategoryId(ANOTHER_CATEGORY_ID);
+            ExpenseUpdateRequest updateRequest = new ExpenseUpdateRequest();
+
+            when(repository.findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID)).thenReturn(Optional.of(expenseEntity));
+
+            assertThrows(BadRequestException.class, () -> service.update(EXPENSE_ID, updateRequest, CATEGORY_ID));
+            verify(repository, times(1)).findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID);
+            verify(mapper, never()).updateEntity(any(ExpenseUpdateRequest.class), any(ExpenseEntity.class));
+            verify(repository, never()).save(any(ExpenseEntity.class));
+        }
+
+        @Test
+        void shouldThrowBadRequestExceptionWhenExpenseDateInFuture() {
+            ExpenseEntity expenseEntity = createExpense();
+            ExpenseUpdateRequest updateRequest = new ExpenseUpdateRequest();
+            updateRequest.setExpenseDate(LocalDateTime.now().plusDays(1));
+
+            when(repository.findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID)).thenReturn(Optional.of(expenseEntity));
+
+            assertThrows(BadRequestException.class, () -> service.update(EXPENSE_ID, updateRequest, CATEGORY_ID));
+            verify(repository, times(1)).findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID);
+            verify(mapper, never()).updateEntity(any(ExpenseUpdateRequest.class), any(ExpenseEntity.class));
+            verify(repository, never()).save(any(ExpenseEntity.class));
+        }
+
+        private ExpenseUpdateRequest createExpenseUpdateRequest() {
+            ExpenseUpdateRequest updateRequest = new ExpenseUpdateRequest();
+            updateRequest.setName(UPDATED_NAME);
+            updateRequest.setAmount(UPDATED_AMOUNT);
+            updateRequest.setExpenseDate(EXPENSE_DATE);
+            return updateRequest;
+        }
+
+    }
 
     private ExpenseEntity createExpense() {
         return ExpenseEntity.builder()

@@ -10,6 +10,7 @@ import com.example.expensetracker.common.util.DateUtil;
 import com.example.expensetracker.expense.domain.ExpenseEntity;
 import com.example.expensetracker.expense.dto.ExpenseRequest;
 import com.example.expensetracker.expense.dto.ExpenseResponse;
+import com.example.expensetracker.expense.dto.ExpenseUpdateRequest;
 import com.example.expensetracker.expense.mapper.ExpenseMapper;
 import com.example.expensetracker.expense.repository.ExpenseRepository;
 import com.example.expensetracker.security.jwt.JwtUser;
@@ -44,6 +45,18 @@ public class ExpenseServiceImp implements ExpenseService{
         expenseRepository.save(expense);
         return expenseMapper.toResponse(expense);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ExpenseResponse update(Long id, ExpenseUpdateRequest request, Long categoryId) {
+        Long userId = getCurrentUserId();
+        ExpenseEntity expense = findExpenseAndValidateCategory(id, categoryId);
+        validateExpense(request.getExpenseDate(), categoryId, userId, request.getAmount());
+        expenseMapper.updateEntity(request, expense);
+        expenseRepository.save(expense);
+        return expenseMapper.toResponse(expense);
+    }
+
 
     private void validateExpense(LocalDateTime expenseDate, Long categoryId, Long userId, BigDecimal amount) {
         validateExpenseDate(expenseDate);

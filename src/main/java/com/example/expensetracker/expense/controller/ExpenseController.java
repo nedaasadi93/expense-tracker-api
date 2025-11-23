@@ -2,6 +2,7 @@ package com.example.expensetracker.expense.controller;
 
 import com.example.expensetracker.expense.dto.ExpenseRequest;
 import com.example.expensetracker.expense.dto.ExpenseResponse;
+import com.example.expensetracker.expense.dto.ExpenseUpdateRequest;
 import com.example.expensetracker.expense.service.ExpenseService;
 import com.example.expensetracker.expense.statics.ExpenseRestApi;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,5 +30,11 @@ public class ExpenseController {
     @PostMapping(path = ExpenseRestApi.EXPENSES)
     public ResponseEntity<ExpenseResponse> create(@PathVariable(value = "categoryId") Long categoryId, @Valid @RequestBody ExpenseRequest request) {
         return ResponseEntity.ok(expenseService.create(request,categoryId));
+    }
+
+    @Operation(summary = "Update", description = "Updates an expense in the specified category if it is owned by the authenticated user")
+    @PutMapping(path = ExpenseRestApi.EXPENSES_ID)
+    public ResponseEntity<ExpenseResponse> update(@PathVariable(value = "categoryId") Long categoryId, @PathVariable(value = "id") Long id, @Valid @RequestBody ExpenseUpdateRequest request){
+        return ResponseEntity.ok(expenseService.update(id,request,categoryId));
     }
 }

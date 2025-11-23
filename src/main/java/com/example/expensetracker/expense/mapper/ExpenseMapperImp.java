@@ -4,6 +4,7 @@ import com.example.expensetracker.category.mapper.CategoryMapper;
 import com.example.expensetracker.expense.domain.ExpenseEntity;
 import com.example.expensetracker.expense.dto.ExpenseRequest;
 import com.example.expensetracker.expense.dto.ExpenseResponse;
+import com.example.expensetracker.expense.dto.ExpenseUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
@@ -57,6 +58,13 @@ public class ExpenseMapperImp implements ExpenseMapper{
                 .build();
     }
 
+    @Override
+    public void updateEntity(ExpenseUpdateRequest request, ExpenseEntity entity) {
+        entity.setName(request.getName());
+        entity.setDescription(request.getDescription());
+        entity.setAmount(request.getAmount());
+        entity.setExpenseDate(request.getExpenseDate());
+    }
 
 
 }

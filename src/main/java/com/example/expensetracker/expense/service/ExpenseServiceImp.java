@@ -56,7 +56,7 @@ public class ExpenseServiceImp implements ExpenseService{
     public ExpenseResponse create(ExpenseRequest request, Long categoryId) {
         Long userId = getCurrentUserId();
         validateExpense(request.getExpenseDate(), categoryId, userId, request.getAmount());
-        ExpenseEntity expense = expenseMapper.createExpense(request, userId, categoryId);
+        ExpenseEntity expense = createExpense(request, userId, categoryId);
         expenseRepository.save(expense);
         return expenseMapper.toResponse(expense);
     }
@@ -146,6 +146,17 @@ public class ExpenseServiceImp implements ExpenseService{
                     .errorCode(ErrorCodes.EXPENSE_CATEGORY_MISMATCH.getCode())
                     .messageKey(ErrorCodes.EXPENSE_CATEGORY_MISMATCH.getMessage())
                     .build());
+    }
+
+    public ExpenseEntity createExpense(ExpenseRequest request, Long userId, Long categoryId) {
+        return ExpenseEntity.builder()
+                .userId(userId)
+                .categoryId(categoryId)
+                .amount(request.getAmount())
+                .description(request.getDescription())
+                .expenseDate(request.getExpenseDate())
+                .name(request.getName())
+                .build();
     }
 
     private Long getCurrentUserId() {

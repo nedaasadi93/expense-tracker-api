@@ -13,7 +13,5 @@ public interface ExpenseMapper {
 
     List<ExpenseResponse> toResponseList(List<ExpenseEntity> expenses);
 
-    ExpenseEntity createExpense(ExpenseRequest request, Long userId, Long categoryId);
-
     void updateEntity(ExpenseUpdateRequest request, ExpenseEntity entity);
 }

@@ -2,7 +2,6 @@ package com.example.expensetracker.expense.mapper;
 
 import com.example.expensetracker.category.mapper.CategoryMapper;
 import com.example.expensetracker.expense.domain.ExpenseEntity;
-import com.example.expensetracker.expense.dto.ExpenseRequest;
 import com.example.expensetracker.expense.dto.ExpenseResponse;
 import com.example.expensetracker.expense.dto.ExpenseUpdateRequest;
 import lombok.RequiredArgsConstructor;
@@ -46,17 +45,6 @@ public class ExpenseMapperImp implements ExpenseMapper{
     }
 
 
-    @Override
-    public ExpenseEntity createExpense(ExpenseRequest request, Long userId, Long categoryId) {
-        return ExpenseEntity.builder()
-                .userId(userId)
-                .categoryId(categoryId)
-                .amount(request.getAmount())
-                .description(request.getDescription())
-                .expenseDate(request.getExpenseDate())
-                .name(request.getName())
-                .build();
-    }
 
     @Override
     public void updateEntity(ExpenseUpdateRequest request, ExpenseEntity entity) {

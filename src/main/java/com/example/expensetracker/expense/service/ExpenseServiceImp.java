@@ -8,13 +8,17 @@ import com.example.expensetracker.common.exception.ExceptionModel;
 import com.example.expensetracker.common.exception.NotFoundException;
 import com.example.expensetracker.common.util.DateUtil;
 import com.example.expensetracker.expense.domain.ExpenseEntity;
+import com.example.expensetracker.expense.dto.ExpenseFilter;
 import com.example.expensetracker.expense.dto.ExpenseRequest;
 import com.example.expensetracker.expense.dto.ExpenseResponse;
 import com.example.expensetracker.expense.dto.ExpenseUpdateRequest;
 import com.example.expensetracker.expense.mapper.ExpenseMapper;
 import com.example.expensetracker.expense.repository.ExpenseRepository;
+import com.example.expensetracker.expense.specification.ExpenseSpecification;
 import com.example.expensetracker.security.jwt.JwtUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +38,15 @@ public class ExpenseServiceImp implements ExpenseService{
     public ExpenseResponse getById(Long id, Long categoryId) {
         ExpenseEntity expense = findExpenseAndValidateCategory(id, categoryId);
         return expenseMapper.toResponse(expense);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ExpenseResponse> getAll(ExpenseFilter filter) {
+        filter.putUserId(getCurrentUserId());
+        Specification<ExpenseEntity> spec = ExpenseSpecification.filter(filter);
+        return expenseRepository.findAll(spec, filter.toPageable())
+                .map(expenseMapper::toResponse);
     }
 
     @Override

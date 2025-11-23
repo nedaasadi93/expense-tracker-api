@@ -1,5 +1,6 @@
 package com.example.expensetracker.expense.controller;
 
+import com.example.expensetracker.expense.dto.ExpenseFilter;
 import com.example.expensetracker.expense.dto.ExpenseRequest;
 import com.example.expensetracker.expense.dto.ExpenseResponse;
 import com.example.expensetracker.expense.dto.ExpenseUpdateRequest;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +26,13 @@ public class ExpenseController {
     @GetMapping(path = ExpenseRestApi.EXPENSES_ID)
     public ResponseEntity<ExpenseResponse> getById(@PathVariable(value = "categoryId") Long categoryId, @PathVariable(value = "id") Long id){
         return ResponseEntity.ok(expenseService.getById(id,categoryId));
+    }
+
+    @Operation(summary = "Get all", description = "Returns all expenses if they belongs to the specified category and is owned by the authenticated user")
+    @GetMapping(path = ExpenseRestApi.EXPENSES)
+    public  ResponseEntity<Page<ExpenseResponse>> getAll(@PathVariable(value = "categoryId") Long categoryId, @Valid ExpenseFilter filter){
+        filter.putCategoryId(categoryId);
+        return ResponseEntity.ok(expenseService.getAll(filter));
     }
 
     @Operation(summary = "Create", description = "creates an expenses in the specified category for the authenticated user")

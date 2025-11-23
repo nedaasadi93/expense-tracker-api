@@ -1,0 +1,43 @@
+{
+  "properties": [
+    {
+      "name": "security.jwt.access.secret",
+      "type": "java.lang.String",
+      "description": "Description for security.jwt.access.secret."
+    },
+    {
+      "name": "security.jwt.access.expiration",
+      "type": "java.lang.String",
+      "description": "Description for security.jwt.access.expiration."
+    },
+    {
+      "name": "security.jwt.refresh.secret",
+      "type": "java.lang.String",
+      "description": "Description for security.jwt.refresh.secret."
+    },
+    {
+      "name": "security.jwt.refresh.expiration",
+      "type": "java.lang.String",
+      "description": "Description for security.jwt.refresh.expiration."
+    },
+    {
+      "name": "otp.duration",
+      "type": "java.lang.String",
+      "description": "Description for otp.duration."
+    },
+    {
+      "name": "otp.max-attempts",
+      "type": "java.lang.String",
+      "description": "Description for otp.max-attempts."
+    },
+    {
+      "name": "otp.max-request",
+      "type": "java.lang.String",
+      "description": "Description for otp.max-request."
+    },
+    {
+      "name": "rest.idn",
+      "type": "java.lang.String",
+      "description": "Description for rest.idn."
+    }
+  ] }

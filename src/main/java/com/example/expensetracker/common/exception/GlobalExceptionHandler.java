@@ -74,6 +74,20 @@ public class GlobalExceptionHandler {
                 .body(buildError(HttpStatus.LOCKED, ex.getModel().getMessageKey(), ex.getModel().getArgs(), request));
     }
 
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex, HttpServletRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(buildError(HttpStatus.BAD_REQUEST, ex.getModel().getMessageKey(), ex.getModel().getArgs(), request));
+    }
+
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidOtp(InvalidOtpException ex, HttpServletRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(buildError(HttpStatus.UNAUTHORIZED, ex.getModel().getMessageKey(), ex.getModel().getArgs(), request));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
         log.error("unexpected error", ex);

@@ -1,9 +1,7 @@
 package com.example.expensetracker.expense.controller;
 
-import com.example.expensetracker.expense.dto.ExpenseFilter;
-import com.example.expensetracker.expense.dto.ExpenseRequest;
-import com.example.expensetracker.expense.dto.ExpenseResponse;
-import com.example.expensetracker.expense.dto.ExpenseUpdateRequest;
+import com.example.expensetracker.alert.AlertResponse;
+import com.example.expensetracker.expense.dto.*;
 import com.example.expensetracker.expense.service.ExpenseService;
 import com.example.expensetracker.expense.statics.ExpenseRestApi;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,5 +57,11 @@ public class ExpenseController {
     @GetMapping(path = ExpenseRestApi.EXPENSES_MONTHLY)
     public ResponseEntity<List<ExpenseResponse>> getMonthlyExpenses(@PathVariable(value = "categoryId") Long categoryId, @RequestParam int year, @RequestParam int month){
         return ResponseEntity.ok(expenseService.getMonthlyExpenses(categoryId,year,month));
+    }
+
+    // this api must call before create expense
+    @GetMapping(ExpenseRestApi.CHECK_LIMIT_EXCEED)
+    public ResponseEntity<AlertResponse> checkLimitExceed(@PathVariable(value = "categoryId") Long categoryId, @Valid CheckLimitExceedRequest request) {
+        return ResponseEntity.ok(expenseService.checkLimitExceed(categoryId, request));
     }
 }

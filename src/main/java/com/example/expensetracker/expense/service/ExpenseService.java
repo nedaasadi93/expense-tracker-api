@@ -1,9 +1,7 @@
 package com.example.expensetracker.expense.service;
 
-import com.example.expensetracker.expense.dto.ExpenseFilter;
-import com.example.expensetracker.expense.dto.ExpenseRequest;
-import com.example.expensetracker.expense.dto.ExpenseResponse;
-import com.example.expensetracker.expense.dto.ExpenseUpdateRequest;
+import com.example.expensetracker.alert.AlertResponse;
+import com.example.expensetracker.expense.dto.*;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -21,4 +19,6 @@ public interface ExpenseService {
     boolean delete(Long id, Long categoryId);
 
     List<ExpenseResponse> getMonthlyExpenses(Long categoryId, int year, int month);
+
+    AlertResponse checkLimitExceed(Long categoryId, CheckLimitExceedRequest request);
 }

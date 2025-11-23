@@ -1,5 +1,7 @@
 package com.example.expensetracker.expense.service;
 
+import com.example.expensetracker.alert.AlertResponse;
+import com.example.expensetracker.alert.AlertType;
 import com.example.expensetracker.category.domain.CategoryEntity;
 import com.example.expensetracker.category.service.CategoryService;
 import com.example.expensetracker.common.exception.BadRequestException;
@@ -8,10 +10,7 @@ import com.example.expensetracker.common.exception.ExceptionModel;
 import com.example.expensetracker.common.exception.NotFoundException;
 import com.example.expensetracker.common.util.DateUtil;
 import com.example.expensetracker.expense.domain.ExpenseEntity;
-import com.example.expensetracker.expense.dto.ExpenseFilter;
-import com.example.expensetracker.expense.dto.ExpenseRequest;
-import com.example.expensetracker.expense.dto.ExpenseResponse;
-import com.example.expensetracker.expense.dto.ExpenseUpdateRequest;
+import com.example.expensetracker.expense.dto.*;
 import com.example.expensetracker.expense.mapper.ExpenseMapper;
 import com.example.expensetracker.expense.repository.ExpenseRepository;
 import com.example.expensetracker.expense.specification.ExpenseSpecification;
@@ -55,7 +54,7 @@ public class ExpenseServiceImp implements ExpenseService{
     @Transactional(rollbackFor = Exception.class)
     public ExpenseResponse create(ExpenseRequest request, Long categoryId) {
         Long userId = getCurrentUserId();
-        validateExpense(request.getExpenseDate(), categoryId, userId, request.getAmount());
+        validateExpense(request.getExpenseDate(), categoryId, userId);
         ExpenseEntity expense = createExpense(request, userId, categoryId);
         expenseRepository.save(expense);
         return expenseMapper.toResponse(expense);
@@ -66,7 +65,7 @@ public class ExpenseServiceImp implements ExpenseService{
     public ExpenseResponse update(Long id, ExpenseUpdateRequest request, Long categoryId) {
         Long userId = getCurrentUserId();
         ExpenseEntity expense = findExpenseAndValidateCategory(id, categoryId);
-        validateExpense(request.getExpenseDate(), categoryId, userId, request.getAmount());
+        validateExpense(request.getExpenseDate(), categoryId, userId);
         expenseMapper.updateEntity(request, expense);
         expenseRepository.save(expense);
         return expenseMapper.toResponse(expense);
@@ -90,8 +89,40 @@ public class ExpenseServiceImp implements ExpenseService{
         return expenseMapper.toResponseList(expenses);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public AlertResponse checkLimitExceed(Long categoryId, CheckLimitExceedRequest request) {
 
-    private void validateExpense(LocalDateTime expenseDate, Long categoryId, Long userId, BigDecimal amount) {
+        Long userId = getCurrentUserId();
+        CategoryEntity category = categoryService.findByIdAndUserIdOrThrowException(categoryId, userId);
+
+        LocalDateTime start = DateUtil.startOfMonth(request.getExpenseDate());
+        LocalDateTime end = DateUtil.endOfMonth(request.getExpenseDate());
+
+        BigDecimal spentAmount = expenseRepository.totalSpentInCategory(userId, category.getId(), start, end);
+        if (spentAmount == null) {
+            spentAmount = BigDecimal.ZERO;
+        }
+
+        if (spentAmount.add(request.getAmount()).compareTo(category.getMonthlyLimit()) > 0) {
+            return AlertResponse.builder()
+                    .type(AlertType.LIMIT_EXCEEDED)
+                    .message("You will exceed your monthly limit for category: " + category.getName())
+                    .currentAmount(request.getAmount())
+                    .monthlyLimit(category.getMonthlyLimit())
+                    .build();
+        }
+
+        return  AlertResponse.builder()
+                .type(AlertType.WITHIN_LIMIT)
+                .message("You are within your monthly limit for category: " + category.getName())
+                .currentAmount(request.getAmount())
+                .monthlyLimit(category.getMonthlyLimit())
+                .build();
+    }
+
+
+    private void validateExpense(LocalDateTime expenseDate, Long categoryId, Long userId) {
         validateExpenseDate(expenseDate);
         CategoryEntity category = categoryService.findByIdAndUserIdOrThrowException(categoryId, userId);
     }
@@ -102,23 +133,6 @@ public class ExpenseServiceImp implements ExpenseService{
                     .builder()
                     .errorCode(ErrorCodes.EXPENSE_DATE_CAN_NOT_BE_IN_FUTURE.getCode())
                     .messageKey(ErrorCodes.EXPENSE_DATE_CAN_NOT_BE_IN_FUTURE.getMessage())
-                    .build());
-    }
-
-    private void validateMonthlyLimit(Long userId, LocalDateTime expenseDate, BigDecimal amount, CategoryEntity category) {
-        LocalDateTime start = DateUtil.startOfMonth(expenseDate);
-        LocalDateTime end = DateUtil.endOfMonth(expenseDate);
-
-        BigDecimal spentAmount = expenseRepository.totalSpentInCategory(userId, category.getId(), start, end);
-        if (spentAmount == null) {
-            spentAmount = BigDecimal.ZERO;
-        }
-
-        if (spentAmount.add(amount).compareTo(category.getMonthlyLimit()) > 0)
-            throw new BadRequestException(ExceptionModel
-                    .builder()
-                    .errorCode(ErrorCodes.MONTHLY_LIMIT_EXCEEDED_FOR_CATEGORY.getCode())
-                    .messageKey(ErrorCodes.MONTHLY_LIMIT_EXCEEDED_FOR_CATEGORY.getMessage())
                     .build());
     }
 

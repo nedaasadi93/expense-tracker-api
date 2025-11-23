@@ -23,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +78,16 @@ public class ExpenseServiceImp implements ExpenseService{
         ExpenseEntity expense = findExpenseAndValidateCategory(id, categoryId);
         expenseRepository.delete(expense);
         return true;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExpenseResponse> getMonthlyExpenses(Long categoryId, int year, int month) {
+        Long userId = getCurrentUserId();
+        LocalDateTime start = LocalDateTime.from(LocalDate.of(year, month, 1));
+        LocalDateTime end = start.plusMonths(1).minusDays(1);
+        List<ExpenseEntity> expenses = expenseRepository.findByUserIdAndCategoryIdAndExpenseDateBetween(userId, categoryId, start, end);
+        return expenseMapper.toResponseList(expenses);
     }
 
 

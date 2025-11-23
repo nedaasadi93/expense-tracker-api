@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "Expense", description = "Expense rest controllers")
 @RestController
 @RequestMapping("${rest.idn}")
@@ -51,5 +53,11 @@ public class ExpenseController {
     @DeleteMapping(path = ExpenseRestApi.EXPENSES_ID)
     public ResponseEntity<Boolean> delete(@PathVariable(value = "categoryId") Long categoryId, @PathVariable(value = "id") Long id) {
         return ResponseEntity.ok(expenseService.delete(id,categoryId));
+    }
+
+    @Operation(summary = "Monthly Expense", description = "Returns expenses for the specified category in a given month and year for the authenticated user")
+    @GetMapping(path = ExpenseRestApi.EXPENSES_MONTHLY)
+    public ResponseEntity<List<ExpenseResponse>> getMonthlyExpenses(@PathVariable(value = "categoryId") Long categoryId, @RequestParam int year, @RequestParam int month){
+        return ResponseEntity.ok(expenseService.getMonthlyExpenses(categoryId,year,month));
     }
 }

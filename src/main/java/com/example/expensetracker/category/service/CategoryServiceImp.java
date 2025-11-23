@@ -2,10 +2,12 @@ package com.example.expensetracker.category.service;
 
 import com.example.expensetracker.category.domain.CategoryEntity;
 import com.example.expensetracker.category.dto.CategoryFilter;
+import com.example.expensetracker.category.dto.CategoryRequest;
 import com.example.expensetracker.category.dto.CategoryResponse;
 import com.example.expensetracker.category.mapper.CategoryMapper;
 import com.example.expensetracker.category.repository.CategoryRepository;
 import com.example.expensetracker.category.specification.CategorySpecification;
+import com.example.expensetracker.common.exception.ConflictException;
 import com.example.expensetracker.common.exception.ErrorCodes;
 import com.example.expensetracker.common.exception.ExceptionModel;
 import com.example.expensetracker.common.exception.NotFoundException;
@@ -34,9 +36,6 @@ public class CategoryServiceImp implements CategoryService {
                 .map(categoryMapper::toResponse);
     }
 
-    private Long getCurrentUserId() {
-        return JwtUser.getAuthenticatedUser().getId();
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -54,6 +53,39 @@ public class CategoryServiceImp implements CategoryService {
                                 .errorCode(ErrorCodes.CATEGORY_NOT_FOUND.getCode())
                                 .messageKey(ErrorCodes.CATEGORY_NOT_FOUND.getMessage())
                                 .build()));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CategoryResponse create(CategoryRequest request) {
+        Long userId = getCurrentUserId();
+        validateCategoryNameUniqueness(userId, request.getName());
+
+        CategoryEntity category = CategoryEntity.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .userId(userId)
+                .monthlyLimit(request.getMonthlyLimit())
+                .build();
+
+        categoryRepository.save(category);
+        return categoryMapper.toResponse(category);
+    }
+
+    private void validateCategoryNameUniqueness(Long userId, String name) {
+        if (categoryRepository.existsByUserIdAndName(userId, name)) {
+            throw new ConflictException(
+                    ExceptionModel
+                            .builder()
+                            .errorCode(ErrorCodes.DUPLICATE_CATEGORY.getCode())
+                            .messageKey(ErrorCodes.DUPLICATE_CATEGORY.getMessage())
+                            .build());
+        }
+    }
+
+
+    private Long getCurrentUserId() {
+        return JwtUser.getAuthenticatedUser().getId();
     }
 
 }

@@ -1,6 +1,7 @@
 package com.example.expensetracker.category.controller;
 
 import com.example.expensetracker.category.dto.CategoryFilter;
+import com.example.expensetracker.category.dto.CategoryRequest;
 import com.example.expensetracker.category.dto.CategoryResponse;
 import com.example.expensetracker.category.service.CategoryService;
 import com.example.expensetracker.category.statics.CategoryRestApi;
@@ -9,10 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("${rest.idn}")
@@ -21,6 +19,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    @Operation(summary = "Get all", description = "Returns all categories owned by the authenticated user")
     @GetMapping(path = CategoryRestApi.CATEGORIES)
     public ResponseEntity<Page<CategoryResponse>> getAll(@Valid CategoryFilter filter) {
         return ResponseEntity.ok(categoryService.getAll(filter));
@@ -30,5 +29,11 @@ public class CategoryController {
     @GetMapping(path = CategoryRestApi.CATEGORIES_ID)
     public ResponseEntity<CategoryResponse> getById(@PathVariable(value = "id") Long id) {
         return ResponseEntity.ok(categoryService.getById(id));
+    }
+
+    @Operation(summary = "Create", description = "Creates a new category for the authenticated user")
+    @PostMapping(path = CategoryRestApi.CATEGORIES)
+    public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest request) {
+        return ResponseEntity.ok(categoryService.create(request));
     }
 }

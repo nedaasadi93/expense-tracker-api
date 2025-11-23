@@ -20,7 +20,8 @@ public enum ErrorCodes {
     INVALID_OTP(16, "INVALID_OTP"),
 
     // Category
-    CATEGORY_NOT_FOUND(20, "CATEGORY_NOT_FOUND");
+    DUPLICATE_CATEGORY(20, "DUPLICATE_CATEGORY"),
+    CATEGORY_NOT_FOUND(21, "CATEGORY_NOT_FOUND");
 
 
     private final Integer code;

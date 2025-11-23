@@ -2,6 +2,7 @@ package com.example.expensetracker.expense.mapper;
 
 import com.example.expensetracker.category.mapper.CategoryMapper;
 import com.example.expensetracker.expense.domain.ExpenseEntity;
+import com.example.expensetracker.expense.dto.ExpenseRequest;
 import com.example.expensetracker.expense.dto.ExpenseResponse;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
@@ -41,6 +42,19 @@ public class ExpenseMapperImp implements ExpenseMapper{
         return expenses.stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+
+    @Override
+    public ExpenseEntity createExpense(ExpenseRequest request, Long userId, Long categoryId) {
+        return ExpenseEntity.builder()
+                .userId(userId)
+                .categoryId(categoryId)
+                .amount(request.getAmount())
+                .description(request.getDescription())
+                .expenseDate(request.getExpenseDate())
+                .name(request.getName())
+                .build();
     }
 
 

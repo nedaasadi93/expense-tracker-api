@@ -101,7 +101,7 @@ public class CategoryServiceImp implements CategoryService {
         return true;
     }
 
-
+    @Override
     public CategoryEntity findByIdAndUserIdOrThrowException(Long id, Long userId) {
         return categoryRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new NotFoundException(

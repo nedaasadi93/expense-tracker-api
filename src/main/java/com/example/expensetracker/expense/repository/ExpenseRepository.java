@@ -1,11 +1,17 @@
 package com.example.expensetracker.expense.repository;
 
 import com.example.expensetracker.expense.domain.ExpenseEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
-public interface ExpenseRepository {
+@Repository
+public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long>, JpaSpecificationExecutor<ExpenseEntity> {
 
     @Query("""
                 SELECT e, c
@@ -14,4 +20,13 @@ public interface ExpenseRepository {
                 WHERE e.userId = :userId AND e.id = :id
             """)
     Optional<ExpenseEntity> findByIdAndUserIdWithCategory(Long id, Long userId);
+
+
+    @Query("""
+                SELECT SUM(e.amount)
+                FROM ExpenseEntity e
+                WHERE e.userId = :userId AND e.category.id = :categoryId
+                      AND e.expenseDate BETWEEN :start AND :end
+            """)
+    BigDecimal totalSpentInCategory(Long userId, Long categoryId, LocalDateTime start, LocalDateTime end);
 }

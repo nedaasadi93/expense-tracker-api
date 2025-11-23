@@ -3,6 +3,7 @@ package com.example.expensetracker.category.controller;
 import com.example.expensetracker.category.dto.CategoryFilter;
 import com.example.expensetracker.category.dto.CategoryRequest;
 import com.example.expensetracker.category.dto.CategoryResponse;
+import com.example.expensetracker.category.dto.CategoryUpdateRequest;
 import com.example.expensetracker.category.service.CategoryService;
 import com.example.expensetracker.category.statics.CategoryRestApi;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,5 +36,11 @@ public class CategoryController {
     @PostMapping(path = CategoryRestApi.CATEGORIES)
     public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(categoryService.create(request));
+    }
+
+    @Operation(summary = "Update", description = "Updates a category by its ID if it is owned by authenticated user")
+    @PutMapping(path = CategoryRestApi.CATEGORIES_ID)
+    public ResponseEntity<CategoryResponse> update(@PathVariable(value = "id") Long id, @Valid @RequestBody CategoryUpdateRequest request) {
+        return ResponseEntity.ok(categoryService.update(id, request));
     }
 }

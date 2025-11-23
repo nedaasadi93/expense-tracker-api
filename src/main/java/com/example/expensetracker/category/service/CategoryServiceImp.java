@@ -4,6 +4,7 @@ import com.example.expensetracker.category.domain.CategoryEntity;
 import com.example.expensetracker.category.dto.CategoryFilter;
 import com.example.expensetracker.category.dto.CategoryRequest;
 import com.example.expensetracker.category.dto.CategoryResponse;
+import com.example.expensetracker.category.dto.CategoryUpdateRequest;
 import com.example.expensetracker.category.mapper.CategoryMapper;
 import com.example.expensetracker.category.repository.CategoryRepository;
 import com.example.expensetracker.category.specification.CategorySpecification;
@@ -71,6 +72,17 @@ public class CategoryServiceImp implements CategoryService {
         categoryRepository.save(category);
         return categoryMapper.toResponse(category);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public CategoryResponse update(Long id, CategoryUpdateRequest request) {
+        Long userId = getCurrentUserId();
+        CategoryEntity category = findByIdAndUserIdOrThrowException(id, userId);
+        categoryMapper.updateEntity(request, category);
+        categoryRepository.save(category);
+        return categoryMapper.toResponse(category);
+    }
+
 
     private void validateCategoryNameUniqueness(Long userId, String name) {
         if (categoryRepository.existsByUserIdAndName(userId, name)) {

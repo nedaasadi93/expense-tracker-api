@@ -2,6 +2,7 @@ package com.example.expensetracker.category.mapper;
 
 import com.example.expensetracker.category.domain.CategoryEntity;
 import com.example.expensetracker.category.dto.CategoryResponse;
+import com.example.expensetracker.category.dto.CategoryUpdateRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -25,6 +26,13 @@ public class CategoryMapper {
         return categories.stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+
+    public void updateEntity(CategoryUpdateRequest request, CategoryEntity entity) {
+        entity.setName(request.getName());
+        entity.setDescription(request.getDescription());
+        entity.setMonthlyLimit(request.getMonthlyLimit());
     }
 
 }

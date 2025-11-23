@@ -1,6 +1,7 @@
 package com.example.expensetracker.expense.repository;
 
 import com.example.expensetracker.expense.domain.ExpenseEntity;
+import com.example.expensetracker.report.dto.MonthlyReportResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -39,4 +40,21 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long>, J
                       AND e.expenseDate BETWEEN :start AND :end
             """)
     List<ExpenseEntity> findByUserIdAndCategoryIdAndExpenseDateBetween(Long userId, Long categoryId, LocalDateTime start, LocalDateTime end);
+
+    @Query("""
+    SELECT 
+        e.category.id AS categoryId,
+        e.category.name AS categoryName,
+        COALESCE(SUM(e.amount), 0) AS totalAmount,
+        e.category.monthlyLimit AS categoryLimit,
+        CASE
+            WHEN COALESCE(SUM(e.amount), 0) > e.category.monthlyLimit THEN 'LIMIT_EXCEEDED'
+            ELSE 'WITHIN_LIMIT'
+        END AS alertType
+    FROM ExpenseEntity e
+    WHERE e.userId = :userId
+    AND e.expenseDate BETWEEN :start AND :end
+    GROUP BY e.category.id, e.category.name, e.category.monthlyLimit
+""")
+    List<MonthlyReportResponse> generateMonthlyReportWithAlerts(Long userId, LocalDateTime start, LocalDateTime end);
 }

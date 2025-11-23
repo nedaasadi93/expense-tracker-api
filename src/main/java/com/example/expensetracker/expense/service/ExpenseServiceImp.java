@@ -14,6 +14,7 @@ import com.example.expensetracker.expense.dto.*;
 import com.example.expensetracker.expense.mapper.ExpenseMapper;
 import com.example.expensetracker.expense.repository.ExpenseRepository;
 import com.example.expensetracker.expense.specification.ExpenseSpecification;
+import com.example.expensetracker.report.dto.MonthlyReportResponse;
 import com.example.expensetracker.security.jwt.JwtUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -172,7 +173,15 @@ public class ExpenseServiceImp implements ExpenseService{
                 .build();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<MonthlyReportResponse> generateMonthlyReportWithAlerts(Long userId, LocalDateTime start, LocalDateTime end) {
+        return expenseRepository.generateMonthlyReportWithAlerts(userId, start, end);
+    }
+
+
     private Long getCurrentUserId() {
         return JwtUser.getAuthenticatedUser().getId();
     }
+
 }

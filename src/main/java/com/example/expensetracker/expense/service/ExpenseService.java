@@ -2,8 +2,10 @@ package com.example.expensetracker.expense.service;
 
 import com.example.expensetracker.alert.AlertResponse;
 import com.example.expensetracker.expense.dto.*;
+import com.example.expensetracker.report.dto.MonthlyReportResponse;
 import org.springframework.data.domain.Page;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ExpenseService {
@@ -21,4 +23,6 @@ public interface ExpenseService {
     List<ExpenseResponse> getMonthlyExpenses(Long categoryId, int year, int month);
 
     AlertResponse checkLimitExceed(Long categoryId, CheckLimitExceedRequest request);
+
+    List<MonthlyReportResponse> generateMonthlyReportWithAlerts(Long userId, LocalDateTime start, LocalDateTime end);
 }

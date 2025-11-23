@@ -61,6 +61,12 @@ Once setting up the project and running the application, you can access the **AP
 [Swagger UI](http://localhost:7000/api/v1/swagger-ui/index.html)
 ```
 
+## 🤖 GitHub Actions for CI/CD
+
+
+This project is set up with GitHub Actions to automate the CI/CD pipeline. GitHub Actions automates the building, testing, and deployment of the Expense Tracker application, allowing for continuous integration with every push and pull request.
+
+
 
 
 

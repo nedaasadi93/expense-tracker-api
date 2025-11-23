@@ -1,5 +1,6 @@
 package com.example.expensetracker.auth.dto.otp;
 
+import com.example.expensetracker.auth.statics.Regex;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
@@ -8,6 +9,6 @@ import lombok.Data;
 public class OtpRequest {
 
     @NotBlank
-    @Pattern(regexp = "^[0-9]{11}$", message = "Mobile number has exactly 11 digits")
+    @Pattern(regexp = Regex.MOBILE, message = "Mobile number has exactly 11 digits")
     private String mobile;
 }

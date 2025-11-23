@@ -14,6 +14,8 @@ import com.example.expensetracker.common.exception.ExceptionModel;
 import com.example.expensetracker.common.exception.NotFoundException;
 import com.example.expensetracker.security.jwt.JwtUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -40,24 +42,22 @@ public class CategoryServiceImp implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(
+            value = "category",
+            key = "@jwtUser.getAuthenticatedUser().id + ':' + #id"
+    )
     public CategoryResponse getById(Long id) {
         Long userId = getCurrentUserId();
         CategoryEntity category = findByIdAndUserIdOrThrowException(id, userId);
         return categoryMapper.toResponse(category);
     }
 
-    public CategoryEntity findByIdAndUserIdOrThrowException(Long id, Long userId) {
-        return categoryRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new NotFoundException(
-                        ExceptionModel
-                                .builder()
-                                .errorCode(ErrorCodes.CATEGORY_NOT_FOUND.getCode())
-                                .messageKey(ErrorCodes.CATEGORY_NOT_FOUND.getMessage())
-                                .build()));
-    }
-
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(
+            value = "category",
+            key = "@jwtUser.getAuthenticatedUser().id + ':' + #id"
+    )
     public CategoryResponse create(CategoryRequest request) {
         Long userId = getCurrentUserId();
         validateCategoryNameUniqueness(userId, request.getName());
@@ -75,6 +75,10 @@ public class CategoryServiceImp implements CategoryService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(
+            value = "category",
+            key = "@jwtUser.getAuthenticatedUser().id + ':' + #id"
+    )
     public CategoryResponse update(Long id, CategoryUpdateRequest request) {
         Long userId = getCurrentUserId();
         CategoryEntity category = findByIdAndUserIdOrThrowException(id, userId);
@@ -86,6 +90,10 @@ public class CategoryServiceImp implements CategoryService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(
+            value = "category",
+            key = "@jwtUser.getAuthenticatedUser().id + ':' + #id"
+    )
     public boolean delete(Long id) {
         Long userId = getCurrentUserId();
         CategoryEntity category = findByIdAndUserIdOrThrowException(id, userId);
@@ -93,6 +101,16 @@ public class CategoryServiceImp implements CategoryService {
         return true;
     }
 
+
+    public CategoryEntity findByIdAndUserIdOrThrowException(Long id, Long userId) {
+        return categoryRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new NotFoundException(
+                        ExceptionModel
+                                .builder()
+                                .errorCode(ErrorCodes.CATEGORY_NOT_FOUND.getCode())
+                                .messageKey(ErrorCodes.CATEGORY_NOT_FOUND.getMessage())
+                                .build()));
+    }
 
     private void validateCategoryNameUniqueness(Long userId, String name) {
         if (categoryRepository.existsByUserIdAndName(userId, name)) {
@@ -104,7 +122,6 @@ public class CategoryServiceImp implements CategoryService {
                             .build());
         }
     }
-
 
     private Long getCurrentUserId() {
         return JwtUser.getAuthenticatedUser().getId();

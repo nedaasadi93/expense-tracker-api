@@ -7,12 +7,15 @@ import com.example.expensetracker.category.dto.CategoryUpdateRequest;
 import com.example.expensetracker.category.service.CategoryService;
 import com.example.expensetracker.category.statics.CategoryRestApi;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+@Tag(name = "Category", description = "Category rest controllers")
 @RestController
 @RequestMapping("${rest.idn}")
 @RequiredArgsConstructor

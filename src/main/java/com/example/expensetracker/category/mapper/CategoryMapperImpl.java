@@ -38,14 +38,4 @@ public class CategoryMapperImpl implements CategoryMapper {
         entity.setDescription(request.getDescription());
         entity.setMonthlyLimit(request.getMonthlyLimit());
     }
-
-    @Override
-    public CategoryEntity createCategory(CategoryRequest request, Long userId) {
-        return CategoryEntity.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .userId(userId)
-                .monthlyLimit(request.getMonthlyLimit())
-                .build();
-    }
 }

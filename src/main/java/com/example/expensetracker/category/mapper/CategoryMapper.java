@@ -16,6 +16,4 @@ public interface CategoryMapper {
 
     void updateEntity(CategoryUpdateRequest request, CategoryEntity entity);
 
-    CategoryEntity createCategory(CategoryRequest request, Long userId);
-
 }

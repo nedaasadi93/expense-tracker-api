@@ -61,7 +61,7 @@ public class CategoryServiceImp implements CategoryService {
     public CategoryResponse create(CategoryRequest request) {
         Long userId = getCurrentUserId();
         validateCategoryNameUniqueness(userId, request.getName());
-        CategoryEntity category = categoryMapper.createCategory(request,userId);
+        CategoryEntity category = createCategory(request,userId);
         categoryRepository.save(category);
         return categoryMapper.toResponse(category);
     }
@@ -114,6 +114,15 @@ public class CategoryServiceImp implements CategoryService {
                             .messageKey(ErrorCodes.DUPLICATE_CATEGORY.getMessage())
                             .build());
         }
+    }
+
+    private CategoryEntity createCategory(CategoryRequest request, Long userId) {
+        return CategoryEntity.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .userId(userId)
+                .monthlyLimit(request.getMonthlyLimit())
+                .build();
     }
 
     private Long getCurrentUserId() {

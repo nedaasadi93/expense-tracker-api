@@ -3,9 +3,11 @@ package com.example.expensetracker.category.service;
 import com.example.expensetracker.auth.dto.UserContextDto;
 import com.example.expensetracker.category.domain.CategoryEntity;
 import com.example.expensetracker.category.dto.CategoryFilter;
+import com.example.expensetracker.category.dto.CategoryRequest;
 import com.example.expensetracker.category.dto.CategoryResponse;
 import com.example.expensetracker.category.mapper.CategoryMapper;
 import com.example.expensetracker.category.repository.CategoryRepository;
+import com.example.expensetracker.common.exception.ConflictException;
 import com.example.expensetracker.common.exception.NotFoundException;
 import com.example.expensetracker.security.jwt.JwtUser;
 import org.junit.jupiter.api.*;
@@ -125,6 +127,43 @@ public class CategoryServiceImpTest {
         }
     }
 
+    @Nested
+    @DisplayName("create")
+    class TestsForCreate {
+        @Test
+        void shouldCreatesCategory() {
+            CategoryRequest request = createCategoryRequest();
+            CategoryEntity categoryEntity = createCategoryEntity();
+            CategoryResponse categoryResponse = new CategoryResponse();
+
+            when(repository.existsByUserIdAndName(USER_ID, NAME)).thenReturn(false);
+            when(mapper.toResponse(any(CategoryEntity.class))).thenReturn(categoryResponse);
+            doAnswer(invocation -> {
+                categoryEntity.setId(CATEGORY_ID);
+                return null;
+            }).when(repository).save(any(CategoryEntity.class));
+
+            CategoryResponse result = service.create(request);
+
+            assertEquals(categoryResponse, result);
+            verify(repository, times(1)).existsByUserIdAndName(USER_ID, NAME);
+            verify(repository, times(1)).save(any(CategoryEntity.class));
+            verify(mapper, times(1)).toResponse(any(CategoryEntity.class));
+        }
+
+        @Test
+        void shouldThrowConflictException_ForDuplicateCategoryName() {
+            CategoryRequest request = createCategoryRequest();
+
+            when(repository.existsByUserIdAndName(USER_ID, NAME)).thenReturn(true);
+
+            assertThrows(ConflictException.class, () -> service.create(request));
+            verify(repository, times(1)).existsByUserIdAndName(USER_ID, NAME);
+            verify(repository, never()).save(any(CategoryEntity.class));
+            verifyNoInteractions(mapper);
+        }
+    }
+
 
     private CategoryEntity createCategoryEntity() {
         return CategoryEntity.builder()
@@ -143,5 +182,13 @@ public class CategoryServiceImpTest {
         filter.setDescription(DESCRIPTION);
         filter.setPageSize(10);
         return filter;
+    }
+
+    private CategoryRequest createCategoryRequest() {
+        CategoryRequest request = new CategoryRequest();
+        request.setName(NAME);
+        request.setMonthlyLimit(MONTHLY_LIMIT);
+        request.setDescription(DESCRIPTION);
+        return request;
     }
 }

@@ -4,5 +4,30 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd">
+
+    <changeSet id="create-expense-table" author="neda" failOnError="true">
+        <sql>
+            create table expense_tracker.expense
+            (
+                id_pk     bigint      not null,
+                created   timestamp(6),
+                deleted   timestamp(6),
+                updated   timestamp(6),
+                user_id_fk bigint,
+                category_id_fk bigint,
+                amount  numeric(18, 8),
+                description  varchar(100) not null,
+                name      varchar(50) not null,
+                expense_date   timestamp(6),
+                primary key (id_pk)
+            );
+
+            create sequence expense_tracker.expense_sequence start with 1 increment by 50;
+
+            alter table if exists expense_tracker.expense add foreign key(user_id_fk) references users(id_pk);
+            alter table if exists expense_tracker.expense add foreign key(category_id_fk) references category(id_pk);
+
+        </sql>
+    </changeSet>
 </databaseChangeLog>
 

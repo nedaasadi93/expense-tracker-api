@@ -50,9 +50,14 @@ To run **Expense Tracker** locally using **Docker Compose**, follow these steps:
 
 2. Build and start the services:
     ```bash
-    docker-compose up --build
+    docker build -t app.tar .
     ```
-
+3. (optional) you can run githubactions pipeline and download image artifact:
+    ```bash
+    docker load -i myapp.tar
+    docker run --rm myapp:latest
+    ```
+    
 ## 📚 **API Documentation**
 
 Once setting up the project and running the application, you can access the **API documentation** via Swagger UI at:

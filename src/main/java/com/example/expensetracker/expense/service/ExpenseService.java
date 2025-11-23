@@ -15,4 +15,6 @@ public interface ExpenseService {
     ExpenseResponse create(ExpenseRequest request, Long categoryId);
 
     ExpenseResponse update(Long id, ExpenseUpdateRequest request, Long categoryId);
+
+    boolean delete(Long id, Long categoryId);
 }

@@ -70,6 +70,14 @@ public class ExpenseServiceImp implements ExpenseService{
         return expenseMapper.toResponse(expense);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean delete(Long id, Long categoryId) {
+        ExpenseEntity expense = findExpenseAndValidateCategory(id, categoryId);
+        expenseRepository.delete(expense);
+        return true;
+    }
+
 
     private void validateExpense(LocalDateTime expenseDate, Long categoryId, Long userId, BigDecimal amount) {
         validateExpenseDate(expenseDate);

@@ -46,4 +46,10 @@ public class ExpenseController {
     public ResponseEntity<ExpenseResponse> update(@PathVariable(value = "categoryId") Long categoryId, @PathVariable(value = "id") Long id, @Valid @RequestBody ExpenseUpdateRequest request){
         return ResponseEntity.ok(expenseService.update(id,request,categoryId));
     }
+
+    @Operation(summary = "Delete", description = "Deletes an expense in the specified category if it is owned by the authenticated user")
+    @DeleteMapping(path = ExpenseRestApi.EXPENSES_ID)
+    public ResponseEntity<Boolean> delete(@PathVariable(value = "categoryId") Long categoryId, @PathVariable(value = "id") Long id) {
+        return ResponseEntity.ok(expenseService.delete(id,categoryId));
+    }
 }

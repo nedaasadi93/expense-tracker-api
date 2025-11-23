@@ -1,6 +1,7 @@
 package com.example.expensetracker.category.mapper;
 
 import com.example.expensetracker.category.domain.CategoryEntity;
+import com.example.expensetracker.category.dto.CategoryRequest;
 import com.example.expensetracker.category.dto.CategoryResponse;
 import com.example.expensetracker.category.dto.CategoryUpdateRequest;
 import org.springframework.stereotype.Component;
@@ -36,5 +37,15 @@ public class CategoryMapperImpl implements CategoryMapper {
         entity.setName(request.getName());
         entity.setDescription(request.getDescription());
         entity.setMonthlyLimit(request.getMonthlyLimit());
+    }
+
+    @Override
+    public CategoryEntity createCategory(CategoryRequest request, Long userId) {
+        return CategoryEntity.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .userId(userId)
+                .monthlyLimit(request.getMonthlyLimit())
+                .build();
     }
 }

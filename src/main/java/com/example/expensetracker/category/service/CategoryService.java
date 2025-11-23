@@ -8,6 +8,7 @@ import com.example.expensetracker.category.dto.CategoryUpdateRequest;
 import org.springframework.data.domain.Page;
 
 public interface CategoryService {
+
     Page<CategoryResponse> getAll(CategoryFilter filter);
 
     CategoryResponse getById(Long id);

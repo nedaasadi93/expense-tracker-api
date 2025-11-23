@@ -83,7 +83,7 @@ public class ExpenseServiceImp implements ExpenseService{
     @Transactional(readOnly = true)
     public List<ExpenseResponse> getMonthlyExpenses(Long categoryId, int year, int month) {
         Long userId = getCurrentUserId();
-        LocalDateTime start = LocalDateTime.from(LocalDate.of(year, month, 1));
+        LocalDateTime start = LocalDate.of(year, month, 1).atTime(0, 0, 0);
         LocalDateTime end = start.plusMonths(1).minusDays(1);
         List<ExpenseEntity> expenses = expenseRepository.findByUserIdAndCategoryIdAndExpenseDateBetween(userId, categoryId, start, end);
         return expenseMapper.toResponseList(expenses);

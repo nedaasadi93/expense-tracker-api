@@ -8,10 +8,10 @@ import lombok.Data;
 @Data
 public class VerifyOtpRequest {
 
-    @NotBlank
-    @Pattern(regexp = Regex.MOBILE, message = "Mobile number has exactly 11 digits")
+    @NotBlank(message = "MOBILE_MUST_NOT_BE_NULL")
+    @Pattern(regexp = Regex.MOBILE, message = "MOBILE_LENGTH")
     private String mobile;
 
-    @NotBlank
+    @NotBlank(message = "OTP_MUST_NOT_BE_NULL")
     private String otp;
 }

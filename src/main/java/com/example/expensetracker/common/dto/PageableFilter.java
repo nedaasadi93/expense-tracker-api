@@ -16,8 +16,8 @@ import org.springframework.data.domain.Pageable;
 @NoArgsConstructor
 public class PageableFilter {
     private int page = 0;
-    @Min(value = 1, message = "Page size must be at least 1")
-    @Max(value = 500, message = "Page size must be maximum 500")
+    @Min(value = 1, message = "MIN_PAGE_SIZE")
+    @Max(value = 500,  message = "MAX_PAGE_SIZE")
     private int pageSize = 20;
 
     public Pageable toPageable() {

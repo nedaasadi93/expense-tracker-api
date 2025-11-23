@@ -8,12 +8,12 @@ import lombok.Data;
 
 @Data
 public class RegisterRequest {
-    @NotBlank
-    @Pattern(regexp = Regex.MOBILE, message = "Mobile number has exactly 11 digits")
+    @NotBlank(message = "MOBILE_MUST_NOT_BE_NULL")
+    @Pattern(regexp = Regex.MOBILE, message = "MOBILE_LENGTH")
     private String mobile;
 
-    @NotBlank
-    @Size(min = 6, max = 20)
+    @NotBlank(message = "PASSWORD_MUST_NOT_BE_NULL")
+    @Size(min = 6, max = 20, message = "PASSWORD_SIZE")
     private String password;
 
     private String name;

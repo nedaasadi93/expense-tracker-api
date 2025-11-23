@@ -52,7 +52,7 @@ To run **Expense Tracker** locally using **Docker Compose**, follow these steps:
     ```bash
     docker build -t app.tar .
     ```
-3. (optional) you can run githubactions pipeline and download image artifact:
+3. (optional) you can run github actions pipeline and download image artifact:
     ```bash
     docker load -i myapp.tar
     docker run --rm myapp:latest
@@ -63,7 +63,7 @@ To run **Expense Tracker** locally using **Docker Compose**, follow these steps:
 Once setting up the project and running the application, you can access the **API documentation** via Swagger UI at:
 
 ```bash
-[Swagger UI](http://localhost:7000/api/v1/swagger-ui/index.html)
+(http://localhost:7000/api/v1/swagger-ui/index.html)
 ```
 
 ## 🤖 GitHub Actions for CI/CD

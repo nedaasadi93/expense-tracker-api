@@ -5,6 +5,7 @@ import com.example.expensetracker.category.domain.CategoryEntity;
 import com.example.expensetracker.category.dto.CategoryFilter;
 import com.example.expensetracker.category.dto.CategoryRequest;
 import com.example.expensetracker.category.dto.CategoryResponse;
+import com.example.expensetracker.category.dto.CategoryUpdateRequest;
 import com.example.expensetracker.category.mapper.CategoryMapper;
 import com.example.expensetracker.category.repository.CategoryRepository;
 import com.example.expensetracker.common.exception.ConflictException;
@@ -46,6 +47,8 @@ public class CategoryServiceImpTest {
     private static final Long CATEGORY_ID = 2L;
     private static final String NAME = "TestName";
     private static final String DESCRIPTION = "TestDescription";
+    private static final String UPDATE_NAME = "TestUpdateName";
+    private static final String UPDATE_DESCRIPTION = "TestUpdateDescription";
     private static final BigDecimal MONTHLY_LIMIT = BigDecimal.valueOf(1000);
 
     @BeforeEach
@@ -164,31 +167,87 @@ public class CategoryServiceImpTest {
         }
     }
 
+    @Nested
+    @DisplayName("update")
+    class TestsForUpdate {
+        @Test
+        void shouldUpdatesCategory() {
+            CategoryUpdateRequest request = createCategoryUpdateRequest();
+            CategoryEntity existingEntity = createCategoryEntity();
+            CategoryResponse updatedResponse = new CategoryResponse();
 
-    private CategoryEntity createCategoryEntity() {
-        return CategoryEntity.builder()
-                .id(CATEGORY_ID)
-                .name(NAME)
-                .description(DESCRIPTION)
-                .userId(USER_ID)
-                .monthlyLimit(MONTHLY_LIMIT)
-                .build();
+            when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID))
+                    .thenReturn(java.util.Optional.of(existingEntity));
+
+            doAnswer(invocation -> {
+                CategoryUpdateRequest req = invocation.getArgument(0);
+                CategoryEntity entity = invocation.getArgument(1);
+
+                entity.setName(req.getName());
+                entity.setDescription(req.getDescription());
+                entity.setMonthlyLimit(req.getMonthlyLimit());
+                return null;
+            }).when(mapper).updateEntity(any(CategoryUpdateRequest.class), any(CategoryEntity.class));
+
+            when(mapper.toResponse(existingEntity)).thenReturn(updatedResponse);
+
+            CategoryResponse result = service.update(CATEGORY_ID, request);
+
+            assertEquals(updatedResponse, result);
+            verify(repository, times(1)).findByIdAndUserId(CATEGORY_ID, USER_ID);
+            verify(mapper, times(1)).updateEntity(request, existingEntity);
+            verify(repository, times(1)).save(existingEntity);
+            verify(mapper, times(1)).toResponse(existingEntity);
+        }
+
+        @Test
+        void shouldThrowNotFoundException() {
+            CategoryUpdateRequest request = createCategoryUpdateRequest();
+
+            when(repository.findByIdAndUserId(CATEGORY_ID, USER_ID))
+                    .thenReturn(java.util.Optional.empty());
+
+            assertThrows(NotFoundException.class, () -> service.update(CATEGORY_ID, request));
+
+            verify(repository, times(1)).findByIdAndUserId(CATEGORY_ID, USER_ID);
+            verify(mapper, never()).updateEntity(any(), any());
+            verify(repository, never()).save(any());
+        }
     }
 
-    private CategoryFilter createCategoryFilter() {
-        CategoryFilter filter = new CategoryFilter();
-        filter.putUserId(USER_ID);
-        filter.setName(NAME);
-        filter.setDescription(DESCRIPTION);
-        filter.setPageSize(10);
-        return filter;
-    }
 
-    private CategoryRequest createCategoryRequest() {
-        CategoryRequest request = new CategoryRequest();
-        request.setName(NAME);
-        request.setMonthlyLimit(MONTHLY_LIMIT);
-        request.setDescription(DESCRIPTION);
-        return request;
+        private CategoryEntity createCategoryEntity() {
+            return CategoryEntity.builder()
+                    .id(CATEGORY_ID)
+                    .name(NAME)
+                    .description(DESCRIPTION)
+                    .userId(USER_ID)
+                    .monthlyLimit(MONTHLY_LIMIT)
+                    .build();
+        }
+
+        private CategoryFilter createCategoryFilter() {
+            CategoryFilter filter = new CategoryFilter();
+            filter.putUserId(USER_ID);
+            filter.setName(NAME);
+            filter.setDescription(DESCRIPTION);
+            filter.setPageSize(10);
+            return filter;
+        }
+
+        private CategoryRequest createCategoryRequest() {
+            CategoryRequest request = new CategoryRequest();
+            request.setName(NAME);
+            request.setMonthlyLimit(MONTHLY_LIMIT);
+            request.setDescription(DESCRIPTION);
+            return request;
+        }
+
+        private CategoryUpdateRequest createCategoryUpdateRequest() {
+            CategoryUpdateRequest request = new CategoryUpdateRequest();
+            request.setName(UPDATE_NAME);
+            request.setDescription(UPDATE_DESCRIPTION);
+            request.setMonthlyLimit(MONTHLY_LIMIT);
+            return request;
+        }
     }
-}

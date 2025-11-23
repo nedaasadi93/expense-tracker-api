@@ -10,3 +10,13 @@ The system allows users to:
 - **Generate monthly reports** for financial insights.
 - **Secure authentication** with **JWT** and **OTP** login.
 - **Manage user transactions and expenses efficiently**.
+
+## 🔒 **Security**
+
+**JWT-based Authentication** ensures secure, stateless sessions between users and the backend. **Two-Factor Authentication (2FA)** via **OTP** provides an additional layer of security.
+
+Key security features:
+- **JWT** tokens provide stateless and scalable authentication.
+- **OTP** verification ensures only authorized users can access their accounts.
+- **Redis** is used for OTP generation and rate-limiting, preventing abuse by limiting OTP requests.
+- **Secure Password Storage**: User passwords are hashed using strong algorithms (e.g., BCrypt).

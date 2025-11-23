@@ -27,6 +27,40 @@ Key security features:
 - **Redis** is used for OTP generation and rate-limiting, preventing abuse by limiting OTP requests.
 - **Secure Password Storage**: User passwords are hashed using strong algorithms (e.g., BCrypt).
 
+## ⚙️ **Tech Stack**
+
+| **Component**          | **Technology**             |
+|------------------------|----------------------------|
+| **Language**           | Java 17                    |
+| **Framework**          | Spring Boot                |
+| **Database**           | PostgreSQL                 |
+| **Authentication**     | JWT + OTP (via Redis)      |
+| **Cache**              | Redis                      |
+| **Containerization**   | Docker Compose             |
+| **API Docs**           | Swagger / OpenAPI          |
+
+## 🐳 **Docker Setup**
+
+To run **Expense Tracker** locally using **Docker Compose**, follow these steps:
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/nedaasadi93/expense-tracker-api.git
+    ```
+
+2. Build and start the services:
+    ```bash
+    docker-compose up --build
+    ```
+
+## 📚 **API Documentation**
+
+Once setting up the project and running the application, you can access the **API documentation** via Swagger UI at:
+
+```bash
+[Swagger UI](http://localhost:7000/api/v1/swagger-ui/index.html)
+```
+
 
 
 

@@ -4,12 +4,18 @@ Expense Tracker is a modular Spring Boot–based application designed to help us
 This project demonstrates best practices in modular design, security (via JWT and OTP), and production-ready architecture choices.
 
 # 🏦 Overview
+
+The Expense Tracker project has been designed with best practices in mind, following a modular architecture and clean code principles. The focus has been on scalability, maintainability, and ensuring that the system is easy to extend in the future.
+
+The application is designed to support multiple languages, ensuring that it can be easily adapted for international use, Messages (e.g., error messages) are externalized into resource files, allowing the system to support multiple languages.
+
 The system allows users to:
 - **Track and categorize expenses** for better financial organization.
 - **Set monthly spending limits** and get alerts when limits are exceeded.
 - **Generate monthly reports** for financial insights.
 - **Secure authentication** with **JWT** and **OTP** login.
 - **Manage user transactions and expenses efficiently**.
+
 
 ## 🔒 **Security**
 
@@ -20,3 +26,8 @@ Key security features:
 - **OTP** verification ensures only authorized users can access their accounts.
 - **Redis** is used for OTP generation and rate-limiting, preventing abuse by limiting OTP requests.
 - **Secure Password Storage**: User passwords are hashed using strong algorithms (e.g., BCrypt).
+
+
+
+
+

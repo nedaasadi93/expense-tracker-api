@@ -3,36 +3,16 @@ package com.example.expensetracker.category.mapper;
 import com.example.expensetracker.category.domain.CategoryEntity;
 import com.example.expensetracker.category.dto.CategoryResponse;
 import com.example.expensetracker.category.dto.CategoryUpdateRequest;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Component
-public class CategoryMapper {
-    public CategoryResponse toResponse(CategoryEntity category) {
-        if (category == null) {
-            return null;
-        }
-        return CategoryResponse.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .description(category.getDescription())
-                .userId(category.getUserId())
-                .monthlyLimit(category.getMonthlyLimit())
-                .build();
-    }
 
-    public List<CategoryResponse> toResponseList(List<CategoryEntity> categories) {
-        return categories.stream()
-                .map(this::toResponse)
-                .toList();
-    }
+public interface CategoryMapper {
 
+    CategoryResponse toResponse(CategoryEntity category);
 
-    public void updateEntity(CategoryUpdateRequest request, CategoryEntity entity) {
-        entity.setName(request.getName());
-        entity.setDescription(request.getDescription());
-        entity.setMonthlyLimit(request.getMonthlyLimit());
-    }
+    List<CategoryResponse> toResponseList(List<CategoryEntity> categories);
+
+    void updateEntity(CategoryUpdateRequest request, CategoryEntity entity);
 
 }

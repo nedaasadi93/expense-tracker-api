@@ -94,7 +94,6 @@ public class ExpenseServiceImp implements ExpenseService{
     private void validateExpense(LocalDateTime expenseDate, Long categoryId, Long userId, BigDecimal amount) {
         validateExpenseDate(expenseDate);
         CategoryEntity category = categoryService.findByIdAndUserIdOrThrowException(categoryId, userId);
-        validateMonthlyLimit(userId, expenseDate, amount, category);
     }
 
     private void validateExpenseDate(LocalDateTime date) {

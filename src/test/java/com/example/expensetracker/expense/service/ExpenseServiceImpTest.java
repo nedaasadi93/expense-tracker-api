@@ -204,6 +204,43 @@ public class ExpenseServiceImpTest {
     }
 
 
+    @Nested
+    @DisplayName("delete")
+    class TestsForDelete {
+        @Test
+        void shouldReturnTrueWhenExpenseIsDeleted() {
+            ExpenseEntity expense = createExpense();
+
+            when(repository.findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID)).thenReturn(Optional.of(expense));
+
+            assertTrue(service.delete(EXPENSE_ID, CATEGORY_ID));
+            verify(repository, times(1)).delete(expense);
+        }
+
+        @Test
+        void shouldThrowNotFoundExceptionWhenExpenseNotFound() {
+            when(repository.findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID)).thenReturn(Optional.empty());
+
+            assertThrows(NotFoundException.class, () -> service.delete(EXPENSE_ID, CATEGORY_ID));
+            verify(repository, never()).delete(any(ExpenseEntity.class));
+        }
+
+        @Test
+        void shouldThrowBadRequestExceptionWhenExpenseIsNotBelongToCategory() {
+            ExpenseEntity expense = new ExpenseEntity();
+            expense.setId(EXPENSE_ID);
+            expense.setCategoryId(999L);
+
+            when(repository.findByIdAndUserIdWithCategory(EXPENSE_ID, USER_ID)).thenReturn(Optional.of(expense));
+
+            assertThrows(BadRequestException.class, () -> service.delete(EXPENSE_ID, CATEGORY_ID));
+            verify(repository, never()).delete(expense);
+        }
+
+    }
+
+
+
 
     private ExpenseEntity createExpense() {
         return ExpenseEntity.builder()

@@ -84,6 +84,16 @@ public class CategoryServiceImp implements CategoryService {
     }
 
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean delete(Long id) {
+        Long userId = getCurrentUserId();
+        CategoryEntity category = findByIdAndUserIdOrThrowException(id, userId);
+        categoryRepository.delete(category);
+        return true;
+    }
+
+
     private void validateCategoryNameUniqueness(Long userId, String name) {
         if (categoryRepository.existsByUserIdAndName(userId, name)) {
             throw new ConflictException(

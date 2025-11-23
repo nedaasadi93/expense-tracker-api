@@ -43,4 +43,10 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> update(@PathVariable(value = "id") Long id, @Valid @RequestBody CategoryUpdateRequest request) {
         return ResponseEntity.ok(categoryService.update(id, request));
     }
+
+    @Operation(summary = "Delete", description = "Delete a category by its ID if it is owned by authenticated user")
+    @DeleteMapping(path = CategoryRestApi.CATEGORIES_ID)
+    public ResponseEntity<Boolean> delete(@PathVariable(value = "id") Long id) {
+        return ResponseEntity.ok(categoryService.delete(id));
+    }
 }

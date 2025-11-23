@@ -6,6 +6,7 @@ import com.example.expensetracker.common.exception.BadRequestException;
 import com.example.expensetracker.common.exception.NotFoundException;
 import com.example.expensetracker.common.util.DateUtil;
 import com.example.expensetracker.expense.domain.ExpenseEntity;
+import com.example.expensetracker.expense.dto.ExpenseFilter;
 import com.example.expensetracker.expense.dto.ExpenseResponse;
 import com.example.expensetracker.expense.mapper.ExpenseMapper;
 import com.example.expensetracker.expense.repository.ExpenseRepository;
@@ -16,11 +17,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -104,6 +110,40 @@ public class ExpenseServiceImpTest {
     }
 
 
+    @Nested
+    @DisplayName("getAll")
+    class TestsForGetAll {
+
+        @Test
+        void shouldReturnFilteredExpenses() {
+            ExpenseFilter filter = createExpenseFilter();
+            ExpenseEntity expenseEntity = createExpense();
+            Page<ExpenseEntity> page = new PageImpl<>(List.of(expenseEntity));
+
+            when(repository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+            when(mapper.toResponse(expenseEntity)).thenReturn(new ExpenseResponse());
+
+            Page<ExpenseResponse> expenseResponses = service.getAll(filter);
+
+            assertEquals(1, expenseResponses.getTotalElements());
+            verify(repository, times(1)).findAll(any(Specification.class), any(Pageable.class));
+            verify(mapper, times(1)).toResponse(expenseEntity);
+        }
+
+        @Test
+        void shouldReturnsEmptyResultWhenNoExpensesExist() {
+            ExpenseFilter filter = createExpenseFilter();
+
+            when(repository.findAll(any(Specification.class), eq(filter.toPageable()))).thenReturn(Page.empty());
+
+            Page<ExpenseResponse> expenseResponses = service.getAll(filter);
+
+            assertNotNull(expenseResponses);
+            assertTrue(expenseResponses.isEmpty());
+            verify(repository, times(1)).findAll(any(Specification.class), eq(filter.toPageable()));
+        }
+    }
+
 
 
     private ExpenseEntity createExpense() {
@@ -111,5 +151,11 @@ public class ExpenseServiceImpTest {
                 .id(EXPENSE_ID)
                 .categoryId(CATEGORY_ID)
                 .build();
+    }
+
+    private ExpenseFilter createExpenseFilter() {
+        ExpenseFilter filter = new ExpenseFilter();
+        filter.putUserId(USER_ID);
+        return filter;
     }
 }

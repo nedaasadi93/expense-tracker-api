@@ -63,7 +63,7 @@ To run **Expense Tracker** locally using **Docker Compose**, follow these steps:
 Once setting up the project and running the application, you can access the **API documentation** via Swagger UI at:
 
 ```bash
-(http://localhost:7000/api/v1/swagger-ui/index.html)
+(http://localhost:8080/api/v1/swagger-ui/index.html)
 ```
 
 ## 🤖 GitHub Actions for CI/CD
